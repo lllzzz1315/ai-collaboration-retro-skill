@@ -2,6 +2,9 @@
 
 `ai-collaboration-retro` is a Codex skill for turning project experience into a low-token AI collaboration knowledge base, and for routing what AI should read first during real project work.
 
+中文一句话：
+把项目经验整理成 AI 更容易读、上下文更省、排查更快的复盘知识库，并在真实项目里告诉 AI 先读什么、后读什么。
+
 It is designed for teams that want to:
 
 - extract reusable lessons from authorized repositories,
@@ -31,6 +34,24 @@ The skill supports two primary workflows and one audit workflow:
   Use an existing retrospective library during day-to-day work to decide what to read first, what to skip, and when to escalate from a short guide to a deep-dive issue note.
 - `Knowledge-base audit`
   Review an existing retro library and suggest route fixes, file splitting, merging, ID cleanup, and link cleanup.
+
+## Before And After
+
+Typical "before" state:
+
+- one long retrospective note with mixed commands, cases, and conclusions,
+- no clear reading order,
+- duplicated issue IDs,
+- AI has to full-read large notes before acting,
+- the same environment or dependency traps get rediscovered every session.
+
+Typical "after" state:
+
+- `README.md` acts as the route table,
+- `最佳实践/` contains one problem type per short file,
+- `专题/` keeps root causes, cases, and prevention notes,
+- `命令速查.md` keeps copyable commands out of long narratives,
+- AI can usually solve a problem by reading one route file and one focused best-practice file first.
 
 ## Who It Is For
 
@@ -96,6 +117,10 @@ Use $ai-collaboration-retro to tell me what AI should read first in this project
 Use $ai-collaboration-retro to audit this retrospective library and suggest split, merge, and routing fixes.
 ```
 
+```text
+Use $ai-collaboration-retro to convert this oversized retrospective note into a README -> 最佳实践 -> 专题 structure.
+```
+
 ## Expected Output Shape
 
 The skill is opinionated about the target knowledge-base structure:
@@ -107,6 +132,17 @@ README.md              route table only
 命令速查.md             copyable commands only
 基线定义文档/            reusable AGENTS/CLAUDE or project baselines
 ```
+
+## Concrete Routing Example
+
+If the current issue is `pip install` failure on Windows:
+
+1. The skill should read the current project's local rules first.
+2. Then it should read the retrospective library `README.md` as a route table.
+3. Then it should choose one focused file such as `最佳实践/02_依赖与包管理最佳实践.md`.
+4. Only if the default action is not enough should it escalate to a deeper file such as `专题/专题_平台兼容.md` or `专题/专题_依赖与版本.md`.
+
+The point is to avoid reading the whole retro library before acting.
 
 ## Guidance
 
