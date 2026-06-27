@@ -1,21 +1,27 @@
 ---
 name: ai-collaboration-retro
-description: Use when extracting reusable AI-collaboration lessons from an authorized project, auditing a retrospective knowledge base for low-token structure problems, or deciding what AI should read first from an existing retro library during project work.
+description: Use when an AI agent needs to avoid repeating known project mistakes, reduce wrong or redundant requests, handle install, download, environment, or dependency tasks by reading existing project memory first, extract reusable lessons from an authorized project, audit a retrospective knowledge base, or decide what to read first from an existing retro library.
 ---
 
 # AI Collaboration Retro
 
 ## Core Principle
 
-Optimize project memory for future AI work: fewer files read, clearer routing, unique issue IDs, short default-action docs, and deeper root-cause docs only when needed.
+Optimize project memory for future AI work so agents avoid repeating known mistakes, send fewer wrong or redundant requests, read less irrelevant context, and spend fewer tokens.
+
+This skill is not for making retrospectives longer. It turns past project traps into a reusable reading route: fewer files read, clearer routing, unique issue IDs, short default-action docs, and deeper root-cause docs only when needed.
+
+The desired outcome is practical: when a future AI session meets a familiar environment, dependency, build, verification, or AI-code-quality problem, it should find the proven path quickly instead of re-asking, re-guessing, or re-reading the whole memory base.
+
+This method is platform-agnostic. If the current AI tool supports native skills, use this file as a skill. If not, use it as a reusable working guide or long-lived prompt.
 
 ## Quick Reference
 
 | Situation | Action |
 |---|---|
-| New project, want reusable lessons | Use `Retrospective extraction` |
-| Existing retro library, current task needs guidance | Use `Project-use routing` |
-| Existing retro library feels bloated or confusing | Use `Knowledge-base audit` |
+| Authorized project has lessons AI should reuse | Use `Retrospective extraction` |
+| Current task needs known project memory | Use `Project-use routing` |
+| Retro library causes over-reading, misreading, or duplicated traps | Use `Knowledge-base audit` |
 
 ## Choose One Mode
 
@@ -29,7 +35,7 @@ If unclear, ask one short question: "Do you want me to extract a new复盘 from 
 
 ## Mode A: Retrospective Extraction
 
-Use when authorized to read a project and produce or update a low-token AI collaboration knowledge base.
+Use when authorized to read a project and produce or update a low-token AI collaboration knowledge base that prevents future repeated mistakes.
 
 1. Read only the directory map first: `rg --files` or equivalent.
 2. Identify project type and high-signal files:
@@ -37,8 +43,9 @@ Use when authorized to read a project and produce or update a low-token AI colla
    - Tech evidence: `package.json`, `pom.xml`, `build.gradle`, `requirements*.txt`, lockfiles.
    - Workflow evidence: `scripts/`, `.github/`, `docs/`, `discuss/`, config files.
 3. Sample code/config only to verify concrete patterns. Do not full-read large trees by default.
-4. Extract issues by problem type, not by project name.
-5. Write or update this structure when requested:
+4. Extract only lessons that change future AI behavior: known traps, default actions, verification commands, routing decisions, and prevention rules.
+5. Group issues by problem type, not by project name.
+6. Write or update this structure when requested:
 
 ```text
 README.md              entry route only
@@ -48,28 +55,32 @@ README.md              entry route only
 基线定义文档/            reusable AGENTS/CLAUDE/project baselines
 ```
 
-6. Each issue should include: trigger, symptom, root cause, correct action, prevention, and one concrete case if available.
-7. Prefer domain IDs over discovery-order IDs when reorganizing:
+7. Each issue should include: trigger, symptom, root cause, correct action, prevention, and one concrete case if available.
+8. Prefer domain IDs over discovery-order IDs when reorganizing:
    - `ENV-*`, `PKG-*`, `VERIFY-*`, `DOC-*`, `SEC-*`, `AI-CODE-*`, `AI-GOV-*`.
    - If existing `F-001` style IDs exist, keep them but ensure every ID is unique.
-8. Keep route files short; move detailed project cases and long explanations into `专题/`.
+9. Keep route files short; move detailed project cases and long explanations into `专题/`.
 
 ## Mode B: Project-Use Routing
 
-Use when working inside a project and using an existing retro library to reduce context.
+Use when working inside a project and using an existing retro library to reduce context, wrong turns, and repeated AI requests.
 
 1. Read the current project's local rules first: `AGENTS.md`, `CLAUDE.md`, then `README.md` if present.
-2. Read the retro library `README.md` only as a route table.
-3. Pick exactly one `最佳实践/` file based on the current problem.
-4. Apply the default action from that file.
-5. Read a `专题/` file only when the default action fails, root cause is unclear, or the issue is recurring.
-6. Read `命令速查.md` only when a copyable command is needed.
-7. Do not read multiple专题 files unless the problem is explicitly cross-domain.
-8. Do not treat the retro library as a second codebase; it is a routing aid for the current project.
+2. If the user explicitly invokes this skill, read the retro library `README.md` once as a required route table before reading any `最佳实践/` or `专题/` file.
+3. If the route table has a similar problem, pick exactly one `最佳实践/` file for that problem.
+4. If the route table does not have a similar problem, continue with normal project-local investigation instead of widening retro reads.
+5. Apply the default action from that file before asking the user to re-explain known history.
+6. For install, download, or dependency tasks, prefer mirror, wheel, version-lock, and platform rules from the best-practice file before trying the default upstream source blindly.
+7. Read a `专题/` file only when the default action fails, root cause is unclear, or the issue is recurring.
+8. Read `命令速查.md` only when a copyable command is needed.
+9. Do not read multiple专题 files unless the problem is explicitly cross-domain.
+10. Do not treat the retro library as a second codebase; it is a routing aid for the current project.
+11. In the same response, explicitly report whether the route table was read and which `最佳实践/` file was matched. If nothing matched, say so and state that normal project-local investigation continued.
+12. If the work reveals a new trap, a stale rule, a missing command, or a reusable new default action, explicitly remind the user that this lesson may need to be archived back into the retro library.
 
 ## Mode C: Knowledge-Base Audit
 
-Use when the user asks whether the复盘 logic, order, or splitting is reasonable.
+Use when the user asks whether the复盘 logic, order, or splitting is reasonable, or when the library seems to make AI read too much before acting.
 
 Check in this order:
 
@@ -77,10 +88,11 @@ Check in this order:
 2. File size: Are best-practice files short enough to be read one at a time?
 3. Scope: Does each `最佳实践/xx.md` cover one problem type only?
 4. Depth: Are root causes and cases in `专题/`, not in the route file?
-5. IDs: Are issue IDs unique, stable, and non-overlapping across files?
-6. Cross-links: Do README, best practices, and专题 files point to each other correctly?
-7. Commands: Are copyable commands centralized in `命令速查.md` or minimal-command sections?
-8. Baselines: Are reusable AGENTS/CLAUDE templates separate from incident notes?
+5. Behavior: Does each route tell AI the default action, not just background reading?
+6. IDs: Are issue IDs unique, stable, and non-overlapping across files?
+7. Cross-links: Do README, best practices, and专题 files point to each other correctly?
+8. Commands: Are copyable commands centralized in `命令速查.md` or minimal-command sections?
+9. Baselines: Are reusable AGENTS/CLAUDE templates separate from incident notes?
 
 ## Split / Merge Rules
 
@@ -89,12 +101,14 @@ Split a file when:
 - It mixes tool commands, code-quality rules, and project-governance rules.
 - AI must read unrelated sections to solve one problem.
 - It has more than one owner question: "how to fix now" and "why it happened".
+- It mixes default actions with long historical cases, causing unnecessary context load.
 
 Merge entries when:
 
 - Two routes point to the same专题 for the same reason.
 - Multiple issue IDs describe the same root cause with different wording.
 - A best-practice file has only one tiny rule and no distinct routing value.
+- Separate files always need to be read together for AI to make one decision.
 
 Move content when:
 
@@ -119,6 +133,20 @@ For edit requests, make the smallest structural edits that improve routing, then
 已改：文件和目的。
 校验：重复 ID、旧引用、链接目标。
 注意：未触碰的既有脏改或待确认范围。
+```
+
+For project-use requests that read the route table, include:
+
+```text
+路由：已读取 README.md。
+命中：最佳实践/xx.md 或 未命中。
+后续：默认动作 / 回到项目本地排查 / 升级专题。
+```
+
+If new project memory was discovered, also include:
+
+```text
+归档提醒：本次发现了可复用新经验，是否需要归档到复盘库。
 ```
 
 ## Validation
