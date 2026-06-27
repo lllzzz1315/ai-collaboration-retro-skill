@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 协作复盘"
+  short_description: "低 token 项目复盘与读取路由"
+  default_prompt: "Use $ai-collaboration-retro to review an authorized project or retro library and organize it into low-token AI collaboration guidance."
