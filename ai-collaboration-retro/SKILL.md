@@ -1,6 +1,6 @@
 ---
 name: ai-collaboration-retro
-description: Use when reviewing an authorized project to extract reusable AI-collaboration lessons, reorganizing a retrospective knowledge base for lower token use, or applying an existing AI-collaboration retro library to decide what to read first during project work.
+description: Use when extracting reusable AI-collaboration lessons from an authorized project, auditing a retrospective knowledge base for low-token structure problems, or deciding what AI should read first from an existing retro library during project work.
 ---
 
 # AI Collaboration Retro
@@ -8,6 +8,14 @@ description: Use when reviewing an authorized project to extract reusable AI-col
 ## Core Principle
 
 Optimize project memory for future AI work: fewer files read, clearer routing, unique issue IDs, short default-action docs, and deeper root-cause docs only when needed.
+
+## Quick Reference
+
+| Situation | Action |
+|---|---|
+| New project, want reusable lessons | Use `Retrospective extraction` |
+| Existing retro library, current task needs guidance | Use `Project-use routing` |
+| Existing retro library feels bloated or confusing | Use `Knowledge-base audit` |
 
 ## Choose One Mode
 
@@ -44,6 +52,7 @@ README.md              entry route only
 7. Prefer domain IDs over discovery-order IDs when reorganizing:
    - `ENV-*`, `PKG-*`, `VERIFY-*`, `DOC-*`, `SEC-*`, `AI-CODE-*`, `AI-GOV-*`.
    - If existing `F-001` style IDs exist, keep them but ensure every ID is unique.
+8. Keep route files short; move detailed project cases and long explanations into `专题/`.
 
 ## Mode B: Project-Use Routing
 
@@ -56,6 +65,7 @@ Use when working inside a project and using an existing retro library to reduce 
 5. Read a `专题/` file only when the default action fails, root cause is unclear, or the issue is recurring.
 6. Read `命令速查.md` only when a copyable command is needed.
 7. Do not read multiple专题 files unless the problem is explicitly cross-domain.
+8. Do not treat the retro library as a second codebase; it is a routing aid for the current project.
 
 ## Mode C: Knowledge-Base Audit
 
