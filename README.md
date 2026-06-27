@@ -1,109 +1,105 @@
 # ai-collaboration-retro-skill
 
-`ai-collaboration-retro` is a Codex skill for turning project experience into a low-token AI collaboration knowledge base, and for routing what AI should read first during real project work.
+English version: [readme_en.md](readme_en.md)
 
-中文一句话：
-把项目经验整理成 AI 更容易读、上下文更省、排查更快的复盘知识库，并在真实项目里告诉 AI 先读什么、后读什么。
+`ai-collaboration-retro` 是一个 Codex skill，用来把项目经验整理成低 token 的 AI 协作知识库，并在真实项目工作中告诉 AI 先读什么、后读什么。
 
-It is designed for teams that want to:
+一句话理解：
+把项目经验整理成 AI 更容易读、上下文更省、排查更快的复盘知识库，并在真实项目里明确读取顺序。
 
-- extract reusable lessons from authorized repositories,
-- reorganize retrospective notes into a cleaner `README -> 最佳实践 -> 专题` structure,
-- reduce context waste during AI-assisted debugging and implementation,
-- make AI reading order explicit instead of relying on full-repo scanning.
+## 这个 skill 解决什么问题
 
-## Why This Exists
+很多 AI 辅助项目协作会反复浪费上下文：
 
-Most AI-assisted project work wastes context in the same ways:
+- 模型在没有路由的情况下读了太多文件，
+- “最佳实践”和根因案例混在同一份长文档里，
+- 可复制命令埋在大段叙述里，
+- 坑号重复、漂移或跨文件冲突，
+- 每次新会话都要重新踩一遍环境和依赖问题。
 
-- the model reads too many files before it has a route,
-- "best practices" and root-cause cases are mixed together,
-- commands are buried inside long notes,
-- issue IDs collide or drift,
-- every new session has to rediscover the same project lessons.
+这个 skill 的目标，是把这些经验压缩成一套 route-first 的结构，让未来的 AI 会话少读、少猜、少试错。
 
-This skill helps compress that memory into a route-first structure that future AI sessions can use with less token burn and less guesswork.
+## 它能做什么
 
-## What The Skill Does
+这个 skill 支持两种主要工作流和一种审计工作流：
 
-The skill supports two primary workflows and one audit workflow:
+- `复盘提炼模式`
+  有权限读取项目后，选择性提炼出可复用的工程和 AI 协作经验，并整理成低 token 知识库。
+- `项目使用模式`
+  在真实项目里使用现有复盘库，决定先读什么、跳过什么，什么时候从短指引升级到专题深挖。
+- `知识库审计模式`
+  审查现有复盘库结构，给出路由修正、文件拆分/合并、坑号清理和链接清理建议。
 
-- `Retrospective extraction`
-  Read an authorized project selectively, identify reusable engineering and AI-collaboration lessons, and organize them into a low-token knowledge base.
-- `Project-use routing`
-  Use an existing retrospective library during day-to-day work to decide what to read first, what to skip, and when to escalate from a short guide to a deep-dive issue note.
-- `Knowledge-base audit`
-  Review an existing retro library and suggest route fixes, file splitting, merging, ID cleanup, and link cleanup.
+## 改造前后是什么样
 
-## Before And After
+典型的“改造前”：
 
-Typical "before" state:
+- 一份很长的复盘笔记，命令、案例、结论全混在一起，
+- 没有清晰的读取顺序，
+- 坑号重复，
+- AI 必须先把长文档读很多才能开始行动，
+- 同样的环境或依赖坑每次会话都要重新发现。
 
-- one long retrospective note with mixed commands, cases, and conclusions,
-- no clear reading order,
-- duplicated issue IDs,
-- AI has to full-read large notes before acting,
-- the same environment or dependency traps get rediscovered every session.
+典型的“改造后”：
 
-Typical "after" state:
+- `README.md` 负责路由，
+- `最佳实践/` 一类问题一个短文件，
+- `专题/` 负责根因、案例和预防，
+- `命令速查.md` 专门放可复制命令，
+- AI 通常只需要先读一个路由文件和一个聚焦的最佳实践文件就能开始解决问题。
 
-- `README.md` acts as the route table,
-- `最佳实践/` contains one problem type per short file,
-- `专题/` keeps root causes, cases, and prevention notes,
-- `命令速查.md` keeps copyable commands out of long narratives,
-- AI can usually solve a problem by reading one route file and one focused best-practice file first.
+## 适合谁
 
-## Who It Is For
+- 在中大型仓库里使用 Codex 或类似 agent 的团队，
+- 想把内部 AI 协作经验沉淀成可复用手册的维护者，
+- 已经在写复盘，但希望这些文档对 AI 更友好的人，
+- 不想每次会话都重新解释环境、依赖和流程坑的人。
 
-- teams using Codex or similar agents on medium-to-large repositories,
-- maintainers building internal AI collaboration playbooks,
-- people who already keep project retrospectives but want them to be more usable by AI,
-- anyone tired of re-explaining the same environment, dependency, or workflow traps every session.
-
-## Repository Layout
+## 仓库结构
 
 ```text
 ai-collaboration-retro-skill/
 ├── LICENSE
 ├── README.md
+├── readme_en.md
 └── ai-collaboration-retro/
     ├── SKILL.md
     └── agents/
         └── openai.yaml
 ```
 
-## Install
+## 安装方式
 
-Clone this repository, then copy the `ai-collaboration-retro/` folder into your local Codex skills directory.
+克隆这个仓库后，把 `ai-collaboration-retro/` 整个目录复制到本地 Codex 的 skills 目录。
 
-Typical locations:
+常见位置：
 
 - Windows: `%USERPROFILE%\\.codex\\skills\\`
 - macOS/Linux: `~/.codex/skills/`
 
-If the `skills/` directory does not exist yet, create it first.
+如果 `skills/` 目录还不存在，先创建它。
 
-Example:
+示例：
 
 ```powershell
-git clone https://github.com/<your-name>/ai-collaboration-retro-skill.git
+git clone https://github.com/lllzzz1315/ai-collaboration-retro-skill.git
 Copy-Item -Recurse .\ai-collaboration-retro-skill\ai-collaboration-retro $env:USERPROFILE\.codex\skills\
 ```
 
 ```bash
-git clone https://github.com/<your-name>/ai-collaboration-retro-skill.git
+git clone https://github.com/lllzzz1315/ai-collaboration-retro-skill.git
 cp -R ./ai-collaboration-retro-skill/ai-collaboration-retro ~/.codex/skills/
 ```
 
-## Quick Start
+## 快速开始
 
-1. Install the skill into your local Codex `skills/` directory.
-2. Open a project or retrospective library you are authorized to inspect.
-3. Use one of the prompts below.
-4. Let the skill decide whether the task is:
-   `Retrospective extraction`, `Project-use routing`, or `Knowledge-base audit`.
+1. 把 skill 安装到本地 Codex `skills/` 目录。
+2. 打开你有权限查看的项目或复盘库。
+3. 使用下面的提示词之一。
+4. 让 skill 自动判断当前任务属于：
+   `复盘提炼模式`、`项目使用模式` 或 `知识库审计模式`。
 
-## Example Prompts
+## 提示词示例
 
 ```text
 Use $ai-collaboration-retro to review this authorized project and extract a low-token AI collaboration retrospective.
@@ -121,47 +117,47 @@ Use $ai-collaboration-retro to audit this retrospective library and suggest spli
 Use $ai-collaboration-retro to convert this oversized retrospective note into a README -> 最佳实践 -> 专题 structure.
 ```
 
-## Expected Output Shape
+## 目标输出结构
 
-The skill is opinionated about the target knowledge-base structure:
+这个 skill 对目标知识库结构有明确偏好：
 
 ```text
-README.md              route table only
-最佳实践/xx.md          one problem type, short default actions
-专题/专题_xx.md         symptoms, root cause, case, prevention
-命令速查.md             copyable commands only
-基线定义文档/            reusable AGENTS/CLAUDE or project baselines
+README.md              路由表，只负责指路
+最佳实践/xx.md          一类问题一个短文件，只写默认动作
+专题/专题_xx.md         现象、根因、案例、预防
+命令速查.md             只放可复制命令
+基线定义文档/            可复用 AGENTS/CLAUDE 或项目基线
 ```
 
-## Concrete Routing Example
+## 一个具体路由例子
 
-If the current issue is `pip install` failure on Windows:
+如果当前问题是 Windows 上 `pip install` 失败：
 
-1. The skill should read the current project's local rules first.
-2. Then it should read the retrospective library `README.md` as a route table.
-3. Then it should choose one focused file such as `最佳实践/02_依赖与包管理最佳实践.md`.
-4. Only if the default action is not enough should it escalate to a deeper file such as `专题/专题_平台兼容.md` or `专题/专题_依赖与版本.md`.
+1. 先读当前项目自己的本地规则。
+2. 再把复盘库的 `README.md` 当作路由表来读。
+3. 然后只选一个聚焦文件，例如 `最佳实践/02_依赖与包管理最佳实践.md`。
+4. 只有默认动作不够时，才升级去读 `专题/专题_平台兼容.md` 或 `专题/专题_依赖与版本.md` 这类深挖文件。
 
-The point is to avoid reading the whole retro library before acting.
+重点就是：不要在行动前把整个复盘库全读一遍。
 
-## Guidance
+## 使用边界
 
-- Only use the skill on projects or documents you are authorized to inspect.
-- The skill is intentionally selective. It should not default to reading an entire large repository.
-- The target structure is a route-first knowledge base:
-  `README.md` for routing, `最佳实践/` for short default actions, `专题/` for root-cause notes, `命令速查.md` for copyable commands.
+- 只在你有权限查看的项目或文档上使用这个 skill。
+- 这个 skill 的设计目标是“选择性读取”，不是默认全量扫描大仓库。
+- 它推崇的是 route-first 知识库：
+  `README.md` 负责路由，`最佳实践/` 放短动作，`专题/` 放根因，`命令速查.md` 放命令。
 
-## Contributing
+## 参与改进
 
-Issues and pull requests are welcome, especially for:
+欢迎提 issue 或 PR，尤其是这些方向：
 
-- better trigger wording,
-- clearer low-token routing patterns,
-- additional validation checks for retrospective libraries,
-- examples from other stacks or repository shapes.
+- 更好的触发词设计，
+- 更清晰的低 token 路由模式，
+- 更多适用于复盘库的校验规则，
+- 来自其他技术栈或仓库形态的示例。
 
-Keep contributions focused on reusable patterns rather than project-specific stories.
+尽量提交“可复用模式”，而不是仅针对某个具体项目的故事性内容。
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT。见 [LICENSE](LICENSE)。
