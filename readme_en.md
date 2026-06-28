@@ -75,6 +75,7 @@ ai-collaboration-retro-skill/
 ├── README.md
 ├── readme_en.md
 └── ai-collaboration-retro/
+    ├── local-config.example.yaml
     ├── SKILL.md
     └── agents/
         └── openai.yaml
@@ -111,13 +112,71 @@ The core of this repository is the method inside `ai-collaboration-retro/SKILL.m
 - If your AI tool does not support native skills, you can still reuse the method by reading `SKILL.md` directly and treating it as a long-lived working prompt or team rule set.
 - `agents/openai.yaml` is platform metadata for tools that use it. It is not required to benefit from the core method.
 
+## Configure The Knowledge-Base Path
+
+This skill now expects a local config file that stores the path to the retrospective knowledge base.
+
+Default location:
+
+```text
+~/.codex/skills/ai-collaboration-retro/local-config.yaml
+```
+
+Template file:
+
+```text
+~/.codex/skills/ai-collaboration-retro/local-config.example.yaml
+```
+
+Example:
+
+```yaml
+knowledge_base:
+  path: "D:/Obsidian-Project/Obsidian/04_AI协作复盘"
+  expected_entry: "README.md"
+  requires_authorized_read: true
+```
+
+Two things matter:
+
+- `knowledge_base.path` must point to the actual retro library this skill should use.
+- The AI tool must be explicitly authorized to read that path before the skill can use it.
+
+Recommended first-time setup:
+
+1. Copy `local-config.example.yaml` to `local-config.yaml`.
+2. Update `knowledge_base.path` to your actual retro-library path.
+3. Make sure that path is authorized for AI read access.
+4. If that path does not yet contain `README.md`, `最佳实践/`, `专题/`, or the expected core structure, generate the knowledge base first.
+
+On first use, the skill should guide the user in this order:
+
+```text
+Check local-config.yaml first.
+If missing, ask whether to generate it.
+If present but unauthorized, ask for read authorization.
+If present and authorized but the knowledge base is missing, tell the user to generate the knowledge base first.
+```
+
 ## Quick Start
 
 1. Install the skill into your AI tool's local `skills/` directory, or make the tool read `SKILL.md`.
-2. Open a project or retrospective library you are authorized to inspect.
-3. Use one of the prompts below. They are intentionally short and task-first.
-4. Let the skill decide whether the task is:
-   `Retrospective extraction`, `Project-use routing`, or `Knowledge-base audit`.
+2. Check whether `local-config.yaml` exists; if not, generate it from `local-config.example.yaml` and fill in the knowledge-base path.
+3. Make sure that path is authorized for AI read access.
+4. Open a project or retrospective library you are authorized to inspect.
+5. Use one of the prompts below.
+6. Let the skill decide whether the task is one of 3 scenarios:
+   `Check existing lessons first`, `Generate or reorganize the knowledge base`, or `Audit or archive updates`.
+
+## What Should Happen On First Use
+
+The expected first-use behavior is:
+
+1. Check `local-config.yaml`.
+2. If it is missing, ask whether to generate it.
+3. If it exists but the configured path is not authorized, ask for authorization first.
+4. If it exists and is authorized but the knowledge base is not ready, tell the user to generate the knowledge base first.
+5. Only after config, authorization, and knowledge-base structure are ready should the skill start normal routing.
 
 ## Short Prompt Cheatsheet
 
@@ -126,53 +185,32 @@ I want to work on this task. Use $ai-collaboration-retro first and check whether
 ```
 
 ```text
-I want to handle this issue. Use $ai-collaboration-retro first and tell me which best-practice file should guide it.
+I want to turn this project's lessons into a knowledge base. Use $ai-collaboration-retro to generate or refresh it.
 ```
 
 ```text
-I want to reorganize this retrospective. Use $ai-collaboration-retro first and show me how it should be split.
-```
-
-```text
-I want to archive this new trap. Use $ai-collaboration-retro first and tell me where it belongs.
+I want to audit or update this knowledge base. Use $ai-collaboration-retro first and tell me whether this new trap should be archived.
 ```
 
 ## Example Prompts
+Keep the prompts focused on 3 scenarios:
+
+1. Check existing lessons first
 
 ```text
-I want to work on this task. Use $ai-collaboration-retro first to see whether we already have a reusable lesson for it.
+I want to work on this task. Use $ai-collaboration-retro first, check whether we already have a reusable lesson, and tell me which best-practice file matches.
 ```
 
-```text
-I need to handle a dependency install problem. Use $ai-collaboration-retro first and check whether we have already seen this kind of issue.
-```
+2. Generate or reorganize the knowledge base
 
 ```text
-I am about to change this area. Use $ai-collaboration-retro first and see whether there is already a best-practice file for it.
+I want to turn this project's lessons into a knowledge base. Use $ai-collaboration-retro to generate or refresh the README, best practices, deep dives, and command cheatsheet.
 ```
 
-```text
-I am starting this task. Use $ai-collaboration-retro first and tell me what this kind of problem should usually read before acting.
-```
+3. Audit or archive updates
 
 ```text
-I want to reorganize this retrospective. Use $ai-collaboration-retro to show me how it should be split into a README, best practices, deep dives, and a command cheatsheet.
-```
-
-```text
-I want to audit this retro library. Use $ai-collaboration-retro first and tell me whether the routing order makes sense, and which files should be split or merged.
-```
-
-```text
-I want to archive a newly discovered trap. Use $ai-collaboration-retro first and tell me which best-practice or deep-dive file it belongs in.
-```
-
-```text
-Use $ai-collaboration-retro while I work on this, and if we discover a new trap, remind me whether it should be archived.
-```
-
-```text
-I want to add a new lesson. Use $ai-collaboration-retro first and tell me whether it should extend an existing file or become a new deep-dive topic.
+I want to audit this knowledge base and see where this new trap belongs. Use $ai-collaboration-retro first, and remind me if it should be archived.
 ```
 
 ## Expected Output Shape
@@ -192,13 +230,16 @@ README.md              route table only
 If the current issue is `pip install` failure on Windows:
 
 1. The skill should read the current project's local rules first.
-2. If the user explicitly invokes this skill, it must read the retrospective library `README.md` once as the route table before reading any best-practice or deep-dive file.
-3. If the route table has a similar problem, it should choose one focused file such as `最佳实践/02_依赖与包管理最佳实践.md`.
-4. If the route table does not have a similar problem, it should return to normal project-local investigation instead of widening retro reads.
-5. For install or download tasks, it should prefer mirror, wheel, version, and platform rules from the best-practice file before trying the default upstream source blindly.
-6. Only if the default action is not enough should it escalate to a deeper file such as `专题/专题_平台兼容.md` or `专题/专题_依赖与版本.md`.
-7. In the same response, it should explicitly tell the user that it read the route table and which best-practice file it matched; if nothing matched, it should say that too and note that it returned to normal project-local investigation.
-8. If the work reveals a new trap, a stale rule, a missing command, or a reusable new default action, it should remind the user to decide whether that lesson should be archived back into the retrospective library.
+2. Then it should check whether `local-config.yaml` exists and whether the configured knowledge-base path is authorized for read access.
+3. If the config is missing, it should tell the user to generate it first.
+4. If the config exists but the knowledge-base path does not contain `README.md` or the expected structure, it should tell the user to generate the knowledge base first.
+5. If the knowledge base is ready and the user explicitly invokes this skill, it must read the knowledge-base `README.md` once as the route table before reading any best-practice or deep-dive file.
+6. If the route table has a similar problem, it should choose one focused file such as `最佳实践/02_依赖与包管理最佳实践.md`.
+7. If the route table does not have a similar problem, it should return to normal project-local investigation instead of widening retro reads.
+8. For install or download tasks, it should prefer mirror, wheel, version, and platform rules from the best-practice file before trying the default upstream source blindly.
+9. Only if the default action is not enough should it escalate to a deeper file such as `专题/专题_平台兼容.md` or `专题/专题_依赖与版本.md`.
+10. In the same response, it should explicitly tell the user that it read the route table and which best-practice file it matched; if nothing matched, it should say that too and note that it returned to normal project-local investigation.
+11. If the work reveals a new trap, a stale rule, a missing command, or a reusable new default action, it should remind the user to decide whether that lesson should be archived back into the retrospective library.
 
 The point is to avoid reading the whole retro library before acting.
 

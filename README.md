@@ -75,6 +75,7 @@ ai-collaboration-retro-skill/
 ├── README.md
 ├── readme_en.md
 └── ai-collaboration-retro/
+    ├── local-config.example.yaml
     ├── SKILL.md
     └── agents/
         └── openai.yaml
@@ -111,13 +112,71 @@ cp -R ./ai-collaboration-retro-skill/ai-collaboration-retro ~/.codex/skills/
 - 如果你的 AI 工具不支持原生 skills，也可以直接读取 `SKILL.md`，把它作为长期工作提示或团队协作规则使用。
 - `agents/openai.yaml` 只是某些工具会用到的平台元数据，不影响核心方法论本身的复用。
 
+## 安装后先配路径
+
+这个 skill 现在约定用一个本地配置文件来记录“复盘知识库路径”。
+
+默认位置：
+
+```text
+~/.codex/skills/ai-collaboration-retro/local-config.yaml
+```
+
+模板文件：
+
+```text
+~/.codex/skills/ai-collaboration-retro/local-config.example.yaml
+```
+
+你需要在 `local-config.yaml` 里填写你的复盘知识库绝对路径，例如：
+
+```yaml
+knowledge_base:
+  path: "D:/Obsidian-Project/Obsidian/04_AI协作复盘"
+  expected_entry: "README.md"
+  requires_authorized_read: true
+```
+
+注意两点：
+
+- 这个路径需要是你希望 skill 实际读取的复盘知识库路径。
+- 这个路径必须是当前 AI 工具已经明确授权可读的路径；没授权时，skill 应该先提醒授权，而不是直接继续读。
+
+推荐的首次配置动作：
+
+1. 把 `local-config.example.yaml` 复制为 `local-config.yaml`。
+2. 把 `knowledge_base.path` 改成你自己的复盘知识库绝对路径。
+3. 确认这个路径已经授权 AI 可读。
+4. 如果这个路径下还没有 `README.md`、`最佳实践/`、`专题/` 等核心结构，就先生成知识库。
+
+skill 首次使用时，建议按下面这个顺序提示用户：
+
+```text
+先检查 local-config.yaml。
+没有配置就提示是否生成。
+有配置但没授权就提示先授权。
+有配置有授权，但知识库还没生成就提示先生成知识库。
+```
+
 ## 快速开始
 
 1. 把 skill 安装到本地 AI 工具的 `skills/` 目录，或让工具读取 `SKILL.md`。
-2. 打开你有权限查看的项目或复盘库。
-3. 直接用下面这种更口语、更直达目标的提示词。
-4. 让 skill 自动判断当前任务属于：
-   `复盘提炼模式`、`项目使用模式` 或 `知识库审计模式`。
+2. 先检查 `local-config.yaml` 是否存在；如果不存在，就从 `local-config.example.yaml` 生成一份并填写知识库路径。
+3. 确认该知识库路径已经授权 AI 可读。
+4. 打开你有权限查看的项目或复盘库。
+5. 直接用下面这种更口语、更直达目标的提示词。
+6. 让 skill 自动判断当前任务属于 3 个场景之一：
+   `先查现成经验`、`生成或整理知识库`、`审查或归档更新`。
+
+## 首次使用会发生什么
+
+第一次真正使用这个 skill 时，理想行为是：
+
+1. 先查 `local-config.yaml`。
+2. 如果没有，就提醒你是否生成配置。
+3. 如果有配置，但路径没授权，就提醒你先授权读取。
+4. 如果有配置也有授权，但知识库路径下没有内容，就提醒你先生成知识库。
+5. 只有配置、授权、知识库都就绪后，才开始正式走路由。
 
 ## 超短提示词
 
@@ -126,53 +185,32 @@ cp -R ./ai-collaboration-retro-skill/ai-collaboration-retro ~/.codex/skills/
 ```
 
 ```text
-我要处理这个问题，先用 $ai-collaboration-retro 看看该读哪个最佳实践。
+我要整理这个项目的经验，先用 $ai-collaboration-retro 生成或更新对应的知识库。
 ```
 
 ```text
-我要整理这份复盘，先用 $ai-collaboration-retro 看看应该怎么拆。
-```
-
-```text
-我要把这次新坑归档进去，先用 $ai-collaboration-retro 看看该放哪里。
+我要审查或补充这份知识库，先用 $ai-collaboration-retro 看看该拆、该合，还是该把新坑归档进去。
 ```
 
 ## 提示词示例
+只保留 3 类场景：
+
+1. 先查现成经验
 
 ```text
-我要做这件事，先用 $ai-collaboration-retro 看看有没有现成经验。
+我要做这件事，先用 $ai-collaboration-retro 看看有没有现成经验；有的话告诉我该读哪个最佳实践。
 ```
 
-```text
-我要处理依赖安装问题，先用 $ai-collaboration-retro 看看以前有没有踩过类似的坑。
-```
+2. 生成或整理知识库
 
 ```text
-我要改这个问题，先用 $ai-collaboration-retro 查一下有没有现成的最佳实践。
+我要把这个项目的经验整理成知识库，先用 $ai-collaboration-retro 帮我生成或更新对应的 README、最佳实践、专题和命令速查。
 ```
 
-```text
-我要开始处理这个任务，先用 $ai-collaboration-retro 看看这类问题通常应该先读什么。
-```
+3. 审查或归档更新
 
 ```text
-我想整理这份复盘，先用 $ai-collaboration-retro 看看应该怎么拆成 README、最佳实践、专题和命令速查。
-```
-
-```text
-我想审查这个复盘库，先用 $ai-collaboration-retro 看看路由顺序对不对、哪些内容该拆、哪些该合。
-```
-
-```text
-我想把这次新踩到的坑归档进去，先用 $ai-collaboration-retro 看看应该放到哪个最佳实践或专题。
-```
-
-```text
-我先处理这个问题，过程中用 $ai-collaboration-retro 看旧经验；如果发现新坑，最后提醒我是否归档。
-```
-
-```text
-我想补一条新经验，先用 $ai-collaboration-retro 判断这条内容应该补到现有文件，还是新开一个专题。
+我要审查这份知识库，顺便看看这次新坑应该补到哪里；如果需要，提醒我归档。
 ```
 
 ## 目标输出结构
@@ -192,13 +230,16 @@ README.md              路由表，只负责指路
 如果当前问题是 Windows 上 `pip install` 失败：
 
 1. 先读当前项目自己的本地规则。
-2. 如果用户显式指定使用这个 skill，就必须先读一次复盘库的 `README.md` 当作路由表。
-3. 如果路由表里能命中相似问题，就只选一个聚焦文件，例如 `最佳实践/02_依赖与包管理最佳实践.md`。
-4. 如果路由表里没有相似问题，就回到项目本地继续排查，而不是额外全读复盘库。
-5. 对下载或安装问题，优先执行最佳实践里已经写明的镜像站、wheel、版本或平台规则。
-6. 只有默认动作不够时，才升级去读 `专题/专题_平台兼容.md` 或 `专题/专题_依赖与版本.md` 这类深挖文件。
-7. 在当次回复里明确告诉用户：本次已经读取路由，以及命中了哪个最佳实践；如果没有命中，也要说明没有命中并已回到项目本地排查。
-8. 如果本次操作发现了新的坑、旧规则失效、命令缺失，或产生了值得复用的新默认做法，要提醒用户是否需要把经验归档进复盘库。
+2. 再检查 `local-config.yaml` 是否存在，以及里面配置的知识库路径是否已授权可读。
+3. 如果没有配置，就提醒用户先生成配置。
+4. 如果配置有了，但知识库路径下还没有 `README.md` 或核心结构，就提醒用户先生成对应知识库。
+5. 如果知识库可用，且用户显式指定使用这个 skill，就先读一次知识库 `README.md` 当作路由表。
+6. 如果路由表里能命中相似问题，就只选一个聚焦文件，例如 `最佳实践/02_依赖与包管理最佳实践.md`。
+7. 如果路由表里没有相似问题，就回到项目本地继续排查，而不是额外全读复盘库。
+8. 对下载或安装问题，优先执行最佳实践里已经写明的镜像站、wheel、版本或平台规则。
+9. 只有默认动作不够时，才升级去读 `专题/专题_平台兼容.md` 或 `专题/专题_依赖与版本.md` 这类深挖文件。
+10. 在当次回复里明确告诉用户：本次已经读取路由，以及命中了哪个最佳实践；如果没有命中，也要说明没有命中并已回到项目本地排查。
+11. 如果本次操作发现了新的坑、旧规则失效、命令缺失，或产生了值得复用的新默认做法，要提醒用户是否需要把经验归档进复盘库。
 
 重点就是：不要在行动前把整个复盘库全读一遍。
 

@@ -1,0 +1,7 @@
+knowledge_base:
+  path: "D:/path/to/your/retro-library"
+  expected_entry: "README.md"
+  requires_authorized_read: true
+  notes:
+    - "Point this to the retrospective knowledge base you want the skill to use."
+    - "The AI tool must be explicitly authorized to read this path."

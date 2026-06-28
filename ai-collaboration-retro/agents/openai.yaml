@@ -1,4 +1,4 @@
 interface:
   display_name: "AI 协作复盘"
-  short_description: "减少重复踩坑的 AI 读取路由"
-  default_prompt: "I want to work on this task. Use $ai-collaboration-retro first to see whether we already have a reusable lesson, tell me what it matched, and remind me if a new lesson should be archived."
+  short_description: "先查经验，再决定怎么做"
+  default_prompt: "I want to work on this task. Use $ai-collaboration-retro first, check the configured knowledge base, tell me whether we already have a reusable lesson, and remind me if a new lesson should be archived."

@@ -1,6 +1,6 @@
 ---
 name: ai-collaboration-retro
-description: Use when an AI agent needs to avoid repeating known project mistakes, reduce wrong or redundant requests, handle install, download, environment, or dependency tasks by reading existing project memory first, extract reusable lessons from an authorized project, audit a retrospective knowledge base, or decide what to read first from an existing retro library.
+description: Use when an AI agent needs to check whether a configured retrospective knowledge base already has reusable lessons for a task, generate or reorganize that knowledge base from an authorized project, audit or archive updates into the knowledge base, or handle install, download, environment, and dependency work by reading existing project memory first.
 ---
 
 # AI Collaboration Retro
@@ -19,33 +19,65 @@ This method is platform-agnostic. If the current AI tool supports native skills,
 
 | Situation | Action |
 |---|---|
-| Authorized project has lessons AI should reuse | Use `Retrospective extraction` |
-| Current task needs known project memory | Use `Project-use routing` |
-| Retro library causes over-reading, misreading, or duplicated traps | Use `Knowledge-base audit` |
+| Current task should check old lessons first | Use `Project-use routing` |
+| Authorized project should become or refresh a knowledge base | Use `Knowledge-base generation` |
+| Existing knowledge base should be audited or updated with a new trap | Use `Audit or archive update` |
+
+## Config Preflight
+
+Before using any mode:
+
+1. Look for `local-config.yaml` in this skill folder.
+2. If it does not exist, tell the user that no knowledge-base path is configured yet and ask whether to generate it from `local-config.example.yaml`.
+3. Explain that the config stores the absolute path to the retrospective knowledge base and that the user must authorize the AI tool to read that path.
+4. If the config exists, read `knowledge_base.path` first.
+5. If the configured path is outside the current authorized read scope, stop and tell the user that the path must be explicitly authorized before the skill can use it.
+6. If the configured path exists but does not contain `README.md` or the expected knowledge-base structure, tell the user that the knowledge base is not ready yet and that `Knowledge-base generation` should run first.
+
+Use these first-run messages:
+
+```text
+配置检查：未找到 local-config.yaml。
+说明：这个 skill 需要一个知识库路径配置，且该路径必须授权可读。
+下一步：是否根据 local-config.example.yaml 生成一份配置模板？
+```
+
+```text
+配置检查：已找到 local-config.yaml。
+授权检查：当前还没有权限读取 knowledge_base.path。
+下一步：请先授权这个路径，再继续使用该 skill。
+```
+
+```text
+配置检查：已找到 local-config.yaml。
+知识库检查：目标路径下还没有 README.md 或核心结构。
+下一步：请先生成对应知识库，再回来使用这个 skill。
+```
 
 ## Choose One Mode
 
 | User intent | Mode |
 |---|---|
-| "Read this project and summarize the lessons" / "turn this into a复盘" | Retrospective extraction |
-| "Use this复盘 while working on a project" / "what should AI read first" | Project-use routing |
-| "Check whether this复盘 structure is good" / "split or merge these坑" | Knowledge-base audit |
+| "I want to do this task, see whether we already learned it" | Project-use routing |
+| "Turn this project into a复盘" / "refresh the knowledge base from this project" | Knowledge-base generation |
+| "Check whether this复盘 structure is good" / "archive this new坑" | Audit or archive update |
 
 If unclear, ask one short question: "Do you want me to extract a new复盘 from a project, or use an existing复盘 to guide current work?"
 
-## Mode A: Retrospective Extraction
+## Mode A: Knowledge-base Generation
 
 Use when authorized to read a project and produce or update a low-token AI collaboration knowledge base that prevents future repeated mistakes.
 
-1. Read only the directory map first: `rg --files` or equivalent.
-2. Identify project type and high-signal files:
+1. Use the configured `knowledge_base.path` as the default output location unless the user gives another authorized target.
+2. Read only the directory map first: `rg --files` or equivalent.
+3. Identify project type and high-signal files:
    - Entry/rules: `README.md`, `AGENTS.md`, `CLAUDE.md`.
    - Tech evidence: `package.json`, `pom.xml`, `build.gradle`, `requirements*.txt`, lockfiles.
    - Workflow evidence: `scripts/`, `.github/`, `docs/`, `discuss/`, config files.
-3. Sample code/config only to verify concrete patterns. Do not full-read large trees by default.
-4. Extract only lessons that change future AI behavior: known traps, default actions, verification commands, routing decisions, and prevention rules.
-5. Group issues by problem type, not by project name.
-6. Write or update this structure when requested:
+4. Sample code/config only to verify concrete patterns. Do not full-read large trees by default.
+5. Extract only lessons that change future AI behavior: known traps, default actions, verification commands, routing decisions, and prevention rules.
+6. Group issues by problem type, not by project name.
+7. Write or update this structure when requested:
 
 ```text
 README.md              entry route only
@@ -55,18 +87,18 @@ README.md              entry route only
 基线定义文档/            reusable AGENTS/CLAUDE/project baselines
 ```
 
-7. Each issue should include: trigger, symptom, root cause, correct action, prevention, and one concrete case if available.
-8. Prefer domain IDs over discovery-order IDs when reorganizing:
+8. Each issue should include: trigger, symptom, root cause, correct action, prevention, and one concrete case if available.
+9. Prefer domain IDs over discovery-order IDs when reorganizing:
    - `ENV-*`, `PKG-*`, `VERIFY-*`, `DOC-*`, `SEC-*`, `AI-CODE-*`, `AI-GOV-*`.
    - If existing `F-001` style IDs exist, keep them but ensure every ID is unique.
-9. Keep route files short; move detailed project cases and long explanations into `专题/`.
+10. Keep route files short; move detailed project cases and long explanations into `专题/`.
 
 ## Mode B: Project-Use Routing
 
 Use when working inside a project and using an existing retro library to reduce context, wrong turns, and repeated AI requests.
 
 1. Read the current project's local rules first: `AGENTS.md`, `CLAUDE.md`, then `README.md` if present.
-2. If the user explicitly invokes this skill, read the retro library `README.md` once as a required route table before reading any `最佳实践/` or `专题/` file.
+2. If the user explicitly invokes this skill, read the configured knowledge-base `README.md` once as a required route table before reading any `最佳实践/` or `专题/` file.
 3. If the route table has a similar problem, pick exactly one `最佳实践/` file for that problem.
 4. If the route table does not have a similar problem, continue with normal project-local investigation instead of widening retro reads.
 5. Apply the default action from that file before asking the user to re-explain known history.
@@ -78,9 +110,9 @@ Use when working inside a project and using an existing retro library to reduce 
 11. In the same response, explicitly report whether the route table was read and which `最佳实践/` file was matched. If nothing matched, say so and state that normal project-local investigation continued.
 12. If the work reveals a new trap, a stale rule, a missing command, or a reusable new default action, explicitly remind the user that this lesson may need to be archived back into the retro library.
 
-## Mode C: Knowledge-Base Audit
+## Mode C: Audit or Archive Update
 
-Use when the user asks whether the复盘 logic, order, or splitting is reasonable, or when the library seems to make AI read too much before acting.
+Use when the user asks whether the复盘 logic, order, or splitting is reasonable, or when a new lesson should be archived into the existing knowledge base.
 
 Check in this order:
 
@@ -93,6 +125,7 @@ Check in this order:
 7. Cross-links: Do README, best practices, and专题 files point to each other correctly?
 8. Commands: Are copyable commands centralized in `命令速查.md` or minimal-command sections?
 9. Baselines: Are reusable AGENTS/CLAUDE templates separate from incident notes?
+10. Archive fit: Should the new lesson extend an existing `最佳实践/` or `专题/`, or does it need a new topic file?
 
 ## Split / Merge Rules
 
@@ -147,6 +180,14 @@ If new project memory was discovered, also include:
 
 ```text
 归档提醒：本次发现了可复用新经验，是否需要归档到复盘库。
+```
+
+For config-missing or knowledge-base-missing cases, include:
+
+```text
+配置检查：已检查。
+当前状态：未配置 / 未授权 / 知识库未生成。
+下一步：生成配置 / 授权路径 / 先生成知识库。
 ```
 
 ## Validation
