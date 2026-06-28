@@ -1,4 +1,4 @@
 interface:
   display_name: "AI 协作复盘"
-  short_description: "先查经验，再决定怎么做"
-  default_prompt: "I want to work on this task. Use $ai-collaboration-retro first, check the configured knowledge base, tell me whether we already have a reusable lesson, and remind me if a new lesson should be archived."
+  short_description: "先查一下有没有现成经验"
+  default_prompt: "我要做这件事，先用 $ai-collaboration-retro 查一下有没有现成经验；如果命中，请告诉我这次有没有读路由、命中了哪个最佳实践；如果发现新坑，也提醒我是否要归档。"

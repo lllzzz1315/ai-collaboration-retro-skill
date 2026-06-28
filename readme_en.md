@@ -2,95 +2,53 @@
 
 Chinese version: [README.md](README.md)
 
-`ai-collaboration-retro` is a general AI collaboration retrospective skill. Its purpose is not to create one more retrospective document, but to turn past project mistakes, verified workflows, and easy-to-misread rules into a reading route that AI can quickly reuse.
+`ai-collaboration-retro` is a general AI collaboration retrospective skill. It does not try to create one more retrospective document. It turns the lessons your own projects already paid for into reusable project memory for future AI work.
 
-In one sentence:
-it helps AI avoid repeating old mistakes, send fewer wrong or redundant requests, read less irrelevant context, and spend fewer tokens during future project work.
+The goal is simple: help AI avoid repeating known mistakes, send fewer wrong or redundant requests, read less irrelevant context, and spend fewer tokens.
 
-## Why This Exists
+## What Problem It Solves
 
-This skill solves a specific collaboration problem: teams accumulate many project lessons, traps, commands, and rules, but each new AI session still has to rediscover what matters, what to read first, and which past lessons should guide the current task.
+Many teams already have notes, retros, commands, and lessons. The problem is that a new AI session still does not know:
 
-It turns past mistakes and project lessons into a reusable reading route, so future AI sessions can hit the right context faster, avoid known failure paths, and send fewer unnecessary follow-up, trial-and-error, or repeated execution requests.
+- what to read first,
+- which file is the default-action guide,
+- which file is just historical context,
+- whether this task already has a proven route,
+- whether a newly discovered trap should be archived back.
 
-In practical terms, it cares less about "more complete documentation" and more about:
+This skill is not about writing more documentation. It is about teaching AI how to read less, route faster, and reuse lessons from your own verified project history.
 
-- whether AI can find the right entry point with less context,
-- whether AI can start from a verified default action instead of guessing again,
-- whether AI can tell which content is a historical case and which content should guide the current operation,
-- whether AI reads root-cause material only when deeper investigation is actually needed.
+## Three Scenarios
 
-Common symptoms:
-
-- retrospective notes keep getting longer, so AI must read too much before finding the actionable rule,
-- environment, dependency, script, build, and AI-code-quality traps keep recurring without a stable entry route,
-- short "what to do" rules are mixed with long "why it happened" root-cause cases,
-- commands are scattered through narrative notes, so AI may improvise or copy stale commands,
-- issue IDs, links, and topic boundaries drift over time,
-- during real project work, AI does not know whether to read project rules, the retro README, a best-practice file, or a deep-dive topic first.
-
-The goal is to compress that memory into a route-first structure: route first, apply the default action second, and read root-cause material only when needed. The practical payoff is less context, fewer tokens, fewer repeated mistakes, and fewer wasted AI requests.
-
-## What The Skill Does
-
-The skill supports two primary workflows and one audit workflow:
-
-- `Retrospective extraction`
-  Read an authorized project selectively, identify engineering lessons, collaboration rules, and known traps that affect future AI work, then organize them into a low-token knowledge base.
-- `Project-use routing`
-  Use an existing retrospective library during day-to-day work to decide what to read first, what to skip, which default action to apply first, and when to escalate from a short guide to a deep-dive issue note.
-- `Knowledge-base audit`
-  Review an existing retro library, find places that make AI over-read, misread, or repeat trial-and-error, and suggest route fixes, file splitting, merging, ID cleanup, and link cleanup.
-
-## Before And After
-
-Typical "before" state:
-
-- one long retrospective note with mixed commands, cases, and conclusions,
-- no clear reading order,
-- duplicated issue IDs,
-- AI has to full-read large notes before acting,
-- the same environment or dependency traps get rediscovered every session.
-
-Typical "after" state:
-
-- `README.md` acts as the route table,
-- `最佳实践/` contains one problem type per short file,
-- `专题/` keeps root causes, cases, and prevention notes,
-- `命令速查.md` keeps copyable commands out of long narratives,
-- AI can usually solve a problem by reading one route file and one focused best-practice file first.
-
-## Who It Is For
-
-- teams using Codex, Claude Code, or similar agents on medium-to-large repositories,
-- maintainers building internal AI collaboration playbooks,
-- people who already keep project retrospectives but want them to be more usable by AI,
-- anyone tired of re-explaining the same environment, dependency, or workflow traps every session.
+- `Check existing lessons first`
+  Before doing the task, see whether your project memory already has a reusable lesson.
+- `Generate or reorganize the knowledge base`
+  Turn lessons from authorized local projects into reusable AI-facing memory.
+- `Audit or archive updates`
+  Review whether the structure is still good and decide where a new lesson belongs.
 
 ## Repository Layout
 
 ```text
 ai-collaboration-retro-skill/
-├── LICENSE
-├── README.md
-├── readme_en.md
-└── ai-collaboration-retro/
-    ├── local-config.example.yaml
-    ├── SKILL.md
-    └── agents/
-        └── openai.yaml
+|-- LICENSE
+|-- README.md
+|-- readme_en.md
+`-- ai-collaboration-retro/
+    |-- local-config.example.yaml
+    |-- SKILL.md
+    `-- agents/
+        `-- openai.yaml
 ```
 
 ## Install
 
-Clone this repository, then either copy the `ai-collaboration-retro/` folder into your tool's local skills directory, or use `SKILL.md` directly as a reusable instruction set.
+Copy the full `ai-collaboration-retro/` folder into your AI tool's `skills/` directory, or use `SKILL.md` directly as a reusable prompt/instruction file.
 
-For tools that support a skills directory, common locations include:
+Common locations:
 
-- Windows: `%USERPROFILE%\\.codex\\skills\\`
+- Windows: `%USERPROFILE%\.codex\skills\`
 - macOS/Linux: `~/.codex/skills/`
-
-If the `skills/` directory does not exist yet, create it first.
 
 Example:
 
@@ -104,25 +62,35 @@ git clone https://github.com/lllzzz1315/ai-collaboration-retro-skill.git
 cp -R ./ai-collaboration-retro-skill/ai-collaboration-retro ~/.codex/skills/
 ```
 
-## Platform Notes
+## First Use
 
-The core of this repository is the method inside `ai-collaboration-retro/SKILL.md`, and that method is tool-agnostic.
+This skill now uses an ask-first flow to keep first use simple.
 
-- If your AI tool supports native skills, install the full `ai-collaboration-retro/` directory.
-- If your AI tool does not support native skills, you can still reuse the method by reading `SKILL.md` directly and treating it as a long-lived working prompt or team rule set.
-- `agents/openai.yaml` is platform metadata for tools that use it. It is not required to benefit from the core method.
+The ideal first interaction should feel like this:
 
-## Configure The Knowledge-Base Path
+```text
+Which local knowledge-base path should I use for this run? Just send me the path.
+Note: that path must be authorized for AI read access.
+If you want, I can also save it as the default path for next time.
+```
 
-This skill now expects a local config file that stores the path to the retrospective knowledge base.
+If the path does not contain a ready knowledge base, continue with:
 
-Default location:
+```text
+There is no ready knowledge base at that path yet. Should I generate the base structure first?
+```
+
+So `local-config.yaml` is optional convenience, not a hard prerequisite.
+
+## Optional Cached Config
+
+If you want to reuse the same knowledge-base path next time, save:
 
 ```text
 ~/.codex/skills/ai-collaboration-retro/local-config.yaml
 ```
 
-Template file:
+Template:
 
 ```text
 ~/.codex/skills/ai-collaboration-retro/local-config.example.yaml
@@ -137,131 +105,99 @@ knowledge_base:
   requires_authorized_read: true
 ```
 
-Two things matter:
-
-- `knowledge_base.path` must point to the actual retro library this skill should use.
-- The AI tool must be explicitly authorized to read that path before the skill can use it.
-
-Recommended first-time setup:
-
-1. Copy `local-config.example.yaml` to `local-config.yaml`.
-2. Update `knowledge_base.path` to your actual retro-library path.
-3. Make sure that path is authorized for AI read access.
-4. If that path does not yet contain `README.md`, `最佳实践/`, `专题/`, or the expected core structure, generate the knowledge base first.
-
-On first use, the skill should guide the user in this order:
-
-```text
-Check local-config.yaml first.
-If missing, ask whether to generate it.
-If present but unauthorized, ask for read authorization.
-If present and authorized but the knowledge base is missing, tell the user to generate the knowledge base first.
-```
-
-## Quick Start
-
-1. Install the skill into your AI tool's local `skills/` directory, or make the tool read `SKILL.md`.
-2. Check whether `local-config.yaml` exists; if not, generate it from `local-config.example.yaml` and fill in the knowledge-base path.
-3. Make sure that path is authorized for AI read access.
-4. Open a project or retrospective library you are authorized to inspect.
-5. Use one of the prompts below.
-6. Let the skill decide whether the task is one of 3 scenarios:
-   `Check existing lessons first`, `Generate or reorganize the knowledge base`, or `Audit or archive updates`.
-
-## What Should Happen On First Use
-
-The expected first-use behavior is:
-
-1. Check `local-config.yaml`.
-2. If it is missing, ask whether to generate it.
-3. If it exists but the configured path is not authorized, ask for authorization first.
-4. If it exists and is authorized but the knowledge base is not ready, tell the user to generate the knowledge base first.
-5. Only after config, authorization, and knowledge-base structure are ready should the skill start normal routing.
-
 ## Short Prompt Cheatsheet
 
+These three are the most natural starting prompts:
+
 ```text
-I want to work on this task. Use $ai-collaboration-retro first and check whether we already have a reusable lesson.
+I want to do this task. Use $ai-collaboration-retro first and check whether we already have a reusable lesson.
 ```
 
 ```text
-I want to turn this project's lessons into a knowledge base. Use $ai-collaboration-retro to generate or refresh it.
+I want to turn this project into a reusable memory base. Use $ai-collaboration-retro first and organize it.
 ```
 
 ```text
-I want to audit or update this knowledge base. Use $ai-collaboration-retro first and tell me whether this new trap should be archived.
+Help me decide where this new lesson should be archived. Use $ai-collaboration-retro first.
 ```
 
-## Example Prompts
-Keep the prompts focused on 3 scenarios:
+## Prompt Examples
 
 1. Check existing lessons first
 
 ```text
-I want to work on this task. Use $ai-collaboration-retro first, check whether we already have a reusable lesson, and tell me which best-practice file matches.
+I want to do this task. Use $ai-collaboration-retro first, check whether we already have a reusable lesson, and tell me whether the route table was read and which best-practice file matched.
 ```
 
 2. Generate or reorganize the knowledge base
 
 ```text
-I want to turn this project's lessons into a knowledge base. Use $ai-collaboration-retro to generate or refresh the README, best practices, deep dives, and command cheatsheet.
+I want to turn my authorized local projects into a reusable memory base. Use $ai-collaboration-retro to extract real project lessons and verified practices. Keep the whole process local and do not upload anything to the network.
 ```
 
 3. Audit or archive updates
 
 ```text
-I want to audit this knowledge base and see where this new trap belongs. Use $ai-collaboration-retro first, and remind me if it should be archived.
+I want to review this knowledge base and decide where this new trap belongs. Use $ai-collaboration-retro first, and remind me if it should be archived.
 ```
 
-## Expected Output Shape
+## Local Knowledge-Base Prompt
 
-The skill is opinionated about the target knowledge-base structure:
+```text
+I want to turn my own authorized local projects into reusable AI knowledge. Use $ai-collaboration-retro to read only local authorized content, extract lessons that really happened and were already verified, and generate or update the knowledge base. If there is no knowledge-base path yet, ask me for one first. If the path exists but the knowledge base is not ready, generate the base structure first.
+```
+
+## Expected Output Structure
 
 ```text
 README.md              route table only
-最佳实践/xx.md          one problem type, short default actions
-专题/专题_xx.md         symptoms, root cause, case, prevention
-命令速查.md             copyable commands only
-基线定义文档/            reusable AGENTS/CLAUDE or project baselines
+best-practice_xx.md    one short file per problem type
+topics/topic_xx.md     symptoms, root cause, case, prevention
+command-cheatsheet.md  copyable commands only
+baselines/             reusable AGENTS / CLAUDE / project baselines
 ```
 
-## Concrete Routing Example
+## Routing Example
 
-If the current issue is `pip install` failure on Windows:
+This flow shows what the skill should do when the user explicitly invokes it for a task.
 
-1. The skill should read the current project's local rules first.
-2. Then it should check whether `local-config.yaml` exists and whether the configured knowledge-base path is authorized for read access.
-3. If the config is missing, it should tell the user to generate it first.
-4. If the config exists but the knowledge-base path does not contain `README.md` or the expected structure, it should tell the user to generate the knowledge base first.
-5. If the knowledge base is ready and the user explicitly invokes this skill, it must read the knowledge-base `README.md` once as the route table before reading any best-practice or deep-dive file.
-6. If the route table has a similar problem, it should choose one focused file such as `最佳实践/02_依赖与包管理最佳实践.md`.
-7. If the route table does not have a similar problem, it should return to normal project-local investigation instead of widening retro reads.
-8. For install or download tasks, it should prefer mirror, wheel, version, and platform rules from the best-practice file before trying the default upstream source blindly.
-9. Only if the default action is not enough should it escalate to a deeper file such as `专题/专题_平台兼容.md` or `专题/专题_依赖与版本.md`.
-10. In the same response, it should explicitly tell the user that it read the route table and which best-practice file it matched; if nothing matched, it should say that too and note that it returned to normal project-local investigation.
-11. If the work reveals a new trap, a stale rule, a missing command, or a reusable new default action, it should remind the user to decide whether that lesson should be archived back into the retrospective library.
+```mermaid
+flowchart TD
+    A["Start: user explicitly invokes the skill"] --> B["Read project-local rules first<br/>AGENTS.md / CLAUDE.md / README.md"]
+    B --> C{"Is there a cached knowledge-base path<br/>in local-config.yaml?"}
+    C -->|Yes| D["Read cached path"]
+    C -->|No| E["Ask the user for a local knowledge-base path<br/>and remind them read authorization is required"]
+    E --> F{"Should the path be cached?"}
+    F -->|Yes| G["Optionally write local-config.yaml"]
+    F -->|No| H["Use the path only for this run"]
+    D --> I{"Is the path authorized for read access?"}
+    G --> I
+    H --> I
+    I -->|No| J["Stop retro reads and ask for authorization"]
+    I -->|Yes| K{"Does the knowledge-base structure exist<br/>README.md, etc.?"}
+    K -->|No| L["Tell the user to generate the knowledge base first"]
+    K -->|Yes| M["Read knowledge-base README.md as route table"]
+    M --> N{"Is there a similar problem?"}
+    N -->|Match| O["Read exactly one best-practice file"]
+    N -->|No match| P["Return to normal project-local investigation"]
+    O --> Q{"Is the default action enough?"}
+    Q -->|Yes| R["Apply the best-practice default action"]
+    Q -->|No| S["Escalate to a deep-dive topic or command cheatsheet"]
+    R --> T["Report: route table was read and which best practice matched"]
+    S --> T
+    P --> U["Report: route table was read, no match, continued local investigation"]
+    T --> V{"Did this work reveal a new trap,<br/>stale rule, or reusable new default action?"}
+    U --> V
+    V -->|Yes| W["Remind the user to decide whether to archive it"]
+    V -->|No| X["End"]
+```
 
-The point is to avoid reading the whole retro library before acting.
+## Boundaries
 
-## Guidance
-
-- Only use the skill on projects or documents you are authorized to inspect.
-- The skill is intentionally selective. It should not default to reading an entire large repository.
-- Installation details may vary by AI tool, but the core workflow stays the same.
-- The target structure is a route-first knowledge base:
-  `README.md` for routing, `最佳实践/` for short default actions, `专题/` for root-cause notes, `命令速查.md` for copyable commands.
-- It does not replace local project rules; during real project work, still read the current project's `AGENTS.md`, `CLAUDE.md`, `README.md`, or equivalent local constraints first.
-
-## Contributing
-
-Issues and pull requests are welcome, especially for:
-
-- better trigger wording,
-- clearer low-token routing patterns,
-- additional validation checks for retrospective libraries,
-- examples from other stacks or repository shapes.
-
-Keep contributions focused on reusable patterns rather than project-specific stories.
+- Read only projects and knowledge-base paths the user explicitly authorizes.
+- The point is selective reading, not full-repo scanning.
+- It does not replace the current project's own rules.
+- The knowledge base should capture lessons from your own projects, not a generic catalog of common mistakes.
 
 ## License
 
